@@ -96,7 +96,7 @@ export default function Home() {
                     type="url"
                     id="url"
                     required
-                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 pl-10"
+                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 pl-10 text-gray-900"
                     placeholder="https://example.com"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
