@@ -8,6 +8,7 @@ import {
   ClockIcon,
 } from "@heroicons/react/24/outline";
 import { storage } from "@/lib/storage";
+import { nanoid } from "nanoid";
 
 export default function Home() {
   const [url, setUrl] = useState("");
@@ -31,21 +32,14 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/shorten", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url }),
-      });
+      // Generate short ID directly in the browser
+      const shortId = nanoid(8);
 
-      const data = await response.json();
+      // Save to localStorage
+      storage.saveUrl(url, shortId);
 
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to shorten URL");
-      }
-
-      const shortenedUrl = `${window.location.origin}/${data.shortId}`;
+      // Create the shortened URL with the correct base path
+      const shortenedUrl = `${window.location.origin}/url-shortener/redirect?id=${shortId}`;
       setShortUrl(shortenedUrl);
       setUrl("");
       toast.success("URL shortened successfully!");
@@ -160,7 +154,7 @@ export default function Home() {
                     </div>
                     <div className="flex items-center justify-between">
                       <p className="text-purple-600 font-medium">
-                        {`${window.location.origin}/${item.shortId}`}
+                        {`${window.location.origin}/url-shortener/redirect?id=${item.shortId}`}
                       </p>
                       <div className="flex items-center gap-4">
                         <span className="text-sm text-gray-500">
@@ -169,7 +163,7 @@ export default function Home() {
                         <button
                           onClick={() =>
                             copyToClipboard(
-                              `${window.location.origin}/${item.shortId}`
+                              `${window.location.origin}/url-shortener/redirect?id=${item.shortId}`
                             )
                           }
                           className="px-3 py-1 text-sm bg-white text-purple-600 font-medium rounded-md border border-purple-200 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors"
