@@ -61,7 +61,7 @@ export default function Home() {
     try {
       await navigator.clipboard.writeText(urlToCopy);
       toast.success("Copied to clipboard!");
-    } catch (err) {
+    } catch {
       toast.error("Failed to copy to clipboard");
     }
   };
