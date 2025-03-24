@@ -30,6 +30,6 @@ body {
 
 @layer base {
   input[type="url"] {
-    @apply py-2.5;
+    @apply py-2.5 text-gray-900;
   }
 }
