@@ -1,60 +1,51 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import toast from "react-hot-toast";
+import { nanoid } from "nanoid";
+import { storage } from "@/lib/storage";
 import {
   LinkIcon,
   ArrowPathIcon,
   ClockIcon,
 } from "@heroicons/react/24/outline";
-import { storage } from "@/lib/storage";
-import { nanoid } from "nanoid";
+
+type UrlMapping = {
+  shortId: string;
+  longUrl: string;
+  clicks: number;
+  createdAt: string;
+};
 
 export default function Home() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [shortUrl, setShortUrl] = useState<string | null>(null);
-  const [previousUrls, setPreviousUrls] = useState<
-    Array<{
-      shortId: string;
-      longUrl: string;
-      clicks: number;
-      createdAt: string;
-    }>
-  >([]);
+  const [previousUrls, setPreviousUrls] = useState<UrlMapping[]>([]);
 
   useEffect(() => {
     setPreviousUrls(storage.getAllUrls());
-  }, [shortUrl]);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Validate URL
       if (!url.startsWith("http://") && !url.startsWith("https://")) {
         throw new Error(
           "Please enter a valid URL starting with http:// or https://"
         );
       }
 
-      // Generate short ID
       const shortId = nanoid(8);
-
-      // Save to localStorage
       storage.saveUrl(url, shortId);
-
-      // Create the shortened URL
-      const shortenedUrl = `${window.location.origin}/url-shortener/redirect?id=${shortId}`;
-      setShortUrl(shortenedUrl);
-      setUrl("");
-      toast.success("URL shortened successfully!");
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to shorten URL"
+      setPreviousUrls(storage.getAllUrls());
+      setShortUrl(
+        `${window.location.origin}/url-shortener/redirect?id=${shortId}`
       );
-      console.error("Error:", error);
+      setUrl("");
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Failed to shorten URL");
     } finally {
       setLoading(false);
     }
@@ -63,10 +54,16 @@ export default function Home() {
   const copyToClipboard = async (urlToCopy: string) => {
     try {
       await navigator.clipboard.writeText(urlToCopy);
-      toast.success("Copied to clipboard!");
+      alert("Copied to clipboard!");
     } catch {
-      toast.error("Failed to copy to clipboard");
+      alert("Failed to copy to clipboard");
     }
+  };
+
+  const handleClearHistory = () => {
+    storage.clearAll();
+    setPreviousUrls([]);
+    setShortUrl(null);
   };
 
   return (
@@ -143,9 +140,17 @@ export default function Home() {
 
           {previousUrls.length > 0 && (
             <div className="mt-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Previous URLs
-              </h2>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Previous URLs
+                </h2>
+                <button
+                  onClick={handleClearHistory}
+                  className="px-4 py-2 text-sm text-red-600 hover:text-red-700 font-medium"
+                >
+                  Clear History
+                </button>
+              </div>
               <div className="space-y-4">
                 {previousUrls.map((item) => (
                   <div

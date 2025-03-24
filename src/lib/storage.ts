@@ -37,10 +37,13 @@ export const storage = {
 
   incrementClicks: (shortId: string): void => {
     const urls = storage.getAllUrls();
-    const urlIndex = urls.findIndex((url) => url.shortId === shortId);
-    if (urlIndex !== -1) {
-      urls[urlIndex].clicks += 1;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(urls));
-    }
+    const updatedUrls = urls.map((url) =>
+      url.shortId === shortId ? { ...url, clicks: (url.clicks || 0) + 1 } : url
+    );
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUrls));
+  },
+
+  clearAll: () => {
+    localStorage.removeItem(STORAGE_KEY);
   },
 };
