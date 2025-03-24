@@ -27,24 +27,33 @@ export default function Home() {
     setPreviousUrls(storage.getAllUrls());
   }, [shortUrl]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Generate short ID directly in the browser
+      // Validate URL
+      if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        throw new Error(
+          "Please enter a valid URL starting with http:// or https://"
+        );
+      }
+
+      // Generate short ID
       const shortId = nanoid(8);
 
       // Save to localStorage
       storage.saveUrl(url, shortId);
 
-      // Create the shortened URL with the correct base path
+      // Create the shortened URL
       const shortenedUrl = `${window.location.origin}/url-shortener/redirect?id=${shortId}`;
       setShortUrl(shortenedUrl);
       setUrl("");
       toast.success("URL shortened successfully!");
     } catch (error) {
-      toast.error("Failed to shorten URL");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to shorten URL"
+      );
       console.error("Error:", error);
     } finally {
       setLoading(false);
