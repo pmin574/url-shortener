@@ -14,10 +14,11 @@ export const storage = {
     return data ? JSON.parse(data) : [];
   },
 
-  getUrl: (shortId: string): UrlMapping | undefined => {
+  getUrl: (shortId: string): string | undefined => {
     if (typeof window === "undefined") return undefined;
     const urls = storage.getAllUrls();
-    return urls.find((url) => url.shortId === shortId);
+    const url = urls.find((url) => url.shortId === shortId);
+    return url?.longUrl;
   },
 
   saveUrl: (longUrl: string, shortId: string): UrlMapping => {
